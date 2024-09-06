@@ -30,7 +30,7 @@ if not openai_api_key:
 else:
     llm = ChatOpenAI(temperature=0)
 
-    """# Define the tool functions"""
+    #Define the tool functions"""
 
     @tool
     def get_weather_data(city:str):
@@ -65,13 +65,13 @@ else:
             return response.json()[0]
         return "City not found"
 
-    """# Bind the tool with the llm"""
+    #Bind the tool with the llm
 
     tools = [get_city_name ,get_weather_data]
 
     llm_with_tools = llm.bind_tools(tools)
 
-    """# System Prompt"""
+    #System Prompt
 
     prompt = ChatPromptTemplate.from_messages(
         [(
@@ -144,7 +144,7 @@ else:
         ]
     )
 
-    """# Build the Agent"""
+    #Build the Agent
 
     agent = (
         {
@@ -160,9 +160,6 @@ else:
 
     agent_executor = AgentExecutor(agent=agent, tools=tools, verbose=True)
 
-    """# User Input"""
-
-    result=agent_executor.stream({"input": "what is the weather like in singhadurbar"})
     
     # Create a session state variable to store the chat messages. This ensures that the
     # messages persist across reruns.
@@ -176,7 +173,10 @@ else:
 
     # Create a chat input field to allow the user to enter a message. This will display
     # automatically at the bottom of the page.
-    if prompt := st.chat_input("What is up?"):
+
+    #User Input
+    if prompt := st.chat_input("Ask me about the weather of any place"):
+        result=agent_executor.invoke({"input": prompt})
 
         # Store and display the current prompt.
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -186,6 +186,5 @@ else:
         # Stream the response to the chat using `st.write_stream`, then store it in 
         # session state.
         with st.chat_message("assistant"):
-            fixed_result=result[-1][output]
-            response = st.write_stream(fixed_result)
+            response = st.write(result['output'])
         st.session_state.messages.append({"role": "assistant", "content": response})
