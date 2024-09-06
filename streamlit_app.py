@@ -163,7 +163,7 @@ else:
     
     # Create a session state variable to store the chat messages. This ensures that the
     # messages persist across reruns.
-    if len(st.session_state.messages) <= 0:
+    if len(st.session_state) == 0:
         st.session_state.messages = []
 
     # Display the existing chat messages via `st.chat_message`.
@@ -176,15 +176,13 @@ else:
 
     #User Input
     if prompt := st.chat_input("Ask me about the weather of any place"):
-        result=agent_executor.invoke({"input": prompt})
 
         # Store and display the current prompt.
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        # Stream the response to the chat using `st.write_stream`, then store it in 
-        # session state.
+        result=agent_executor.invoke({"input": prompt}) #get the output from the llm
         with st.chat_message("assistant"):
             response = st.write(result['output'])
-        st.session_state.messages.append({"role": "assistant", "content": response})
+        st.session_state.messages.append({"role": "assistant", "content": result['output']})
